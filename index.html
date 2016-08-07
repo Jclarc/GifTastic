@@ -1,0 +1,102 @@
+<!-- Purpose of this code is to dynamically generate buttons using only jQuery (i.e. no hardcoded html buttons) -->
+<html>
+<head>
+    <title>Favorite Movies</title>
+    <style type="text/css">
+        button, div, form, input {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>GIPHY Search</h1>
+
+    <!-- Movies will get dumped here -->
+    <div id="moviesView">
+    </div>
+
+    <form id="movie-form">
+        <label for="movie-input">Add an Animal</label>
+        <input type="text" id="movie-input"><br>
+
+        <!-- Button triggers new movie to be added -->
+        <input id="addMovie" type="submit" value="Find .Gif Topic">
+    </form>
+
+    <div id="results"></div>
+
+    <script src='http://code.jquery.com/jquery-2.1.3.min.js'></script>
+    <script type="text/javascript">
+
+        $(".gif").on('click', function() {
+            var search = $(this).data('query');
+            console.log('search', search);
+            $.ajax({url: "http://api.giphy.com/v1/gifs/search",
+                data: {
+                    limit: 10,
+                    api_key: "dc6zaTOxFJmzC",
+                    q: search
+                }, method: 'GET'})
+                    .done(function(response) {
+                        $("#results").empty();
+                        console.log(response);
+                        $.each(response.data, function (key, gif){
+                            $("#results").append('<iframe src="'+gif.embed_url+'"/>');
+                        })
+                    });
+        });
+
+        // Initial array of topics
+        var topics = [];
+
+        // ========================================================
+
+        // Generic function for displaying movie data
+        function renderButtons(){
+
+            $('#moviesView').empty();
+
+            // Loops through the array of topics
+            $.each(topics, function(index,element){
+                console.log("index: " +index+ ",element: " + element);
+                var movieButton= $('<button>');
+                movieButton.addClass('gif');
+                movieButton.attr('data-query', element);
+                movieButton.text(element);
+                $('#moviesView').append(movieButton);
+            })
+
+
+        }
+
+
+        $('#addMovie').on('click', function(){
+
+
+            var addMovie=$("#movie-input").val().trim();
+
+            // The movie from the textbox is then added to our array
+            if(addMovie != '') {
+                topics.push(addMovie);
+
+                // Our array then runs which handles the processing of our movie array
+                renderButtons();
+                $('#movie-input').focus('').val('');
+            }
+
+            return false;
+        })
+
+
+
+        // This calls the renderButtons() function
+        renderButtons();
+
+
+    </script>
+
+
+</body>
+</html>
